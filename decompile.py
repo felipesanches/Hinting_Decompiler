@@ -69,6 +69,20 @@ def pattern_match_vtttalk(tokens):
       # side-effect:
       refPt["2"] = a
 
+    elif mnemonic == "CALL" and len(operands) == 3 and operands[2] == 106:
+      a, b, _ = operands
+      vttalk.append('Res{}Dist({},{})'.format(axis, a, b))
+      # side-effect:
+      refPt["1"] = a
+
+    elif mnemonic == "IP" and len(operands) == 1:
+      pt = operands[0]
+      vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["1"], pt, refPt["2"]))
+
+    elif mnemonic == "MDAP" and len(operands) == 2 and operands[0] == '1': #not sure about round='1'("R") in instruction "MDAP[R], 3"
+      pt = operands[1]
+      vttalk.append('{}Anchor({})'.format(axis, pt))
+
     elif mnemonic == "SHP" and len(operands) == 2:
       refpt_id, pt = operands
       vttalk.append('{}Shift({},{})'.format(axis, refPt[REF_POINT[refpt_id]], pt))
@@ -95,7 +109,7 @@ def decompile_instructions(font):
     glyph_order = font.getGlyphOrder()
     glyf_table = font['glyf']
     for glyph_name in glyph_order:
-        if glyph_name == "X":
+        if glyph_name == "Xi":
             data = get_glyph_assembly(font, glyph_name)
             data = data.strip()
             tokens = tokenize(data)
