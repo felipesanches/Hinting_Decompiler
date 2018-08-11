@@ -2,17 +2,9 @@ from parser import AssemblyParser, ParseException
 
 from fontTools.ttLib import (TTFont, TTLibError)
 from fontTools.ttLib.tables.ttProgram import Program
-#from fontTools.ttLib.tables._g_l_y_f import (
-#    USE_MY_METRICS, ROUND_XY_TO_GRID, UNSCALED_COMPONENT_OFFSET,
-#    SCALED_COMPONENT_OFFSET,
-#)
-
-#VTT_TABLES = ["TSI0", "TSI1", "TSI2", "TSI3", "TSI5"]
-
 
 class VTTLibError(TTLibError):
     pass
-
 
 def tokenize(data, parseAll=True):
     return AssemblyParser.parseString(data, parseAll=parseAll)
@@ -20,10 +12,8 @@ def tokenize(data, parseAll=True):
 def get_glyph_assembly(font, name):
     return get_vtt_program(font, name, is_glyph=True)
 
-
 def get_glyph_talk(font, name):
     return get_vtt_program(font, name, is_talk=True, is_glyph=True)
-
 
 def get_vtt_program(font, name, is_talk=False, is_glyph=False):
     tag = "TSI3" if is_talk else "TSI1"
@@ -69,7 +59,8 @@ def pattern_match_vtttalk(tokens):
       # side-effect:
       refPt["2"] = a
 
-    elif mnemonic == "CALL" and len(operands) == 3 and operands[2] == 106:
+    elif mnemonic == "CALL" and len(operands) == 3 and (operands[2] == 105 or operands[2] == 106):
+      # FIXME: What's the difference between functions 105 and 106 ?
       a, b, _ = operands
       vttalk.append('Res{}Dist({},{})'.format(axis, a, b))
       # side-effect:
@@ -126,7 +117,7 @@ def decompile_instructions(font):
     glyph_order = font.getGlyphOrder()
     glyf_table = font['glyf']
     for glyph_name in glyph_order:
-        #if glyph_name == "Y":
+        #if glyph_name == "uniFB49":
             decompile_glyph_bytecode(font, glyph_name, verbose=True)
 
 
