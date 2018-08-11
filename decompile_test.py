@@ -72,12 +72,19 @@ def create_test(font, glyph_name):
     self.assertEqual(decompiled, source_cleanup(original_vtt_talk))
   return do_test_expected
 
-font = TTFont("data/OpenSans-BoldItalic_VTT.ttf")
-for glyph_name in font.getGlyphOrder():
-  if glyph_name in font["TSI3"].glyphPrograms:
-    test_method = create_test(font, glyph_name)
-    test_method.__name__ = 'test_decompile_{0}'.format(glyph_name)
-    setattr(TestPreReqs, test_method.__name__, test_method)
+fonts = [
+  "data/OpenSans-CondBold_VTT.ttf",
+  "data/OpenSans-Bold_VTT.ttf",
+  "data/OpenSans-BoldItalic_VTT.ttf"
+]
+
+for font_name in fonts:
+  font = TTFont(font_name)
+  for glyph_name in font.getGlyphOrder():
+    if glyph_name in font["TSI3"].glyphPrograms:
+      test_method = create_test(font, glyph_name)
+      test_method.__name__ = 'test_decompile_{}_{}'.format(font_name, glyph_name)
+      setattr(TestPreReqs, test_method.__name__, test_method)
 
 if __name__ == '__main__':
     unittest.main()
