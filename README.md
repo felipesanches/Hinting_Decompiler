@@ -7,5 +7,7 @@ This is a decompiler that regenerates VTT Talk high-level script based on the lo
 
 The code is licensed under the MIT license just like the Dalton Maag's upstream project.
 
+Special thanks to Micah Stupak-Hahn who teased me into hacking this with an email a couple days ago!
+
 Happy Hacking,
-Felipe "juca" Sanches
+Felipe "Juca" Sanches
