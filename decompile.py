@@ -53,7 +53,7 @@ REF_POINT = {
 def pattern_match_vtttalk(tokens):
   vttalk = []
   axis = "X"
-  refPt = {"1": None, "2": None}
+  refPt = {"1": 0, "2": 0}
   IP = 0
   while IP < len(tokens):
     cmd = tokens[IP]
