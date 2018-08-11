@@ -77,6 +77,9 @@ def pattern_match_vtttalk(tokens):
 
     elif mnemonic == "IP" and len(operands) == 1:
       pt = operands[0]
+      #FIX-ME: the order of the Interpolate params may be reversed, not sure why.
+      #        I suspect it may be related to the coordinates of the actual points
+      #        See YDir: Stroke #0 on glyph "numbersign" (OpenSans-BoldItalic)
       vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["1"], pt, refPt["2"]))
 
     elif mnemonic == "MDAP" and len(operands) == 2 and operands[0] == '1': #not sure about round='1'("R") in instruction "MDAP[R], 3"
@@ -102,6 +105,17 @@ def pattern_match_vtttalk(tokens):
 
   return "\n".join(vttalk)
 
+def decompile_glyph_bytecode(font, glyph_name, verbose=False):
+  data = get_glyph_assembly(font, glyph_name)
+  data = data.strip()
+  tokens = tokenize(data)
+  vtttalk = pattern_match_vtttalk(tokens)
+  if verbose:
+    print("== {} ==\n{}\n".format(glyph_name, data))
+    # print("== TOKENS ==\n{}\n".format("\n".join(map(str, tokens))))
+    print("== VTT Talk ==\n{}\n".format(vtttalk))
+  return vtttalk
+
 def decompile_instructions(font):
     if "glyf" not in font:
         raise VTTLibError("Missing 'glyf' table; not a TrueType font")
@@ -109,14 +123,9 @@ def decompile_instructions(font):
     glyph_order = font.getGlyphOrder()
     glyf_table = font['glyf']
     for glyph_name in glyph_order:
-        if glyph_name == "Xi":
-            data = get_glyph_assembly(font, glyph_name)
-            data = data.strip()
-            tokens = tokenize(data)
-            vtttalk = pattern_match_vtttalk(tokens)
-            print("== {} ==\n{}\n".format(glyph_name, data))
-            # print("== TOKENS ==\n{}\n".format("\n".join(map(str, tokens))))
-            print("== VTT Talk ==\n{}\n".format(vtttalk))
+        #if glyph_name == "Y":
+            decompile_glyph_bytecode(font, glyph_name, verbose=True)
+
 
 def vtt_decompile(infile, outfile):
     font = TTFont(infile)
@@ -124,11 +133,12 @@ def vtt_decompile(infile, outfile):
     decompile_instructions(font)
     #font.save(outfile)
 
-import sys
-if len(sys.argv) != 2:
-  sys.exit("usage: {} infile.ttf".format(sys.argv[0]))
+if __name__ == "__main__":
+  import sys
+  if len(sys.argv) != 2:
+    sys.exit("usage: {} infile.ttf".format(sys.argv[0]))
 
-infile = sys.argv[1]
-outfile = sys.argv[1] + ".out"
-vtt_decompile(infile, outfile)
-print ("done")
+  infile = sys.argv[1]
+  outfile = sys.argv[1] + ".out"
+  vtt_decompile(infile, outfile)
+  print ("done")
