@@ -40,7 +40,7 @@ REF_POINT = {
   '1': "1"
 }
 
-def pattern_match_vtttalk(tokens):
+def pattern_match_vtttalk(tokens, points):
   vttalk = []
   axis = "X"
   refPt = {"1": 0, "2": 0}
@@ -69,10 +69,15 @@ def pattern_match_vtttalk(tokens):
 
     elif mnemonic == "IP" and len(operands) == 1:
       pt = operands[0]
-      #FIX-ME: the order of the Interpolate params may be reversed, not sure why.
-      #        I suspect it may be related to the coordinates of the actual points
-      #        See YDir: Stroke #0 on glyph "numbersign" (OpenSans-BoldItalic)
-      vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["1"], pt, refPt["2"]))
+      # the order of the Interpolate params depend on the coordinates of the actual points
+      if axis == 'X':
+        coord = 0
+      else: # if axis == 'Y':
+        coord = 1
+      if points[refPt["1"]][coord] > points[refPt["2"]][coord]:
+        vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["1"], pt, refPt["2"]))
+      else:
+        vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["2"], pt, refPt["1"]))
 
     elif mnemonic == "MDAP" and len(operands) == 2 and operands[0] == '1': #not sure about round='1'("R") in instruction "MDAP[R], 3"
       pt = operands[1]
@@ -103,7 +108,8 @@ def decompile_glyph_bytecode(font, glyph_name, verbose=False):
   data = get_glyph_assembly(font, glyph_name)
   data = data.strip()
   tokens = tokenize(data)
-  vtttalk = pattern_match_vtttalk(tokens)
+  points = font["glyf"][glyph_name].coordinates
+  vtttalk = pattern_match_vtttalk(tokens, points)
   if verbose:
     print("== {} ==\n{}\n".format(glyph_name, data))
     # print("== TOKENS ==\n{}\n".format("\n".join(map(str, tokens))))
