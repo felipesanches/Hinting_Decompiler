@@ -74,6 +74,7 @@ def pattern_match_vtttalk(tokens):
       vttalk.append('Res{}Dist({},{})'.format(axis, a, b))
       # side-effect:
       refPt["1"] = a
+      refPt["2"] = b
 
     elif mnemonic == "IP" and len(operands) == 1:
       pt = operands[0]
