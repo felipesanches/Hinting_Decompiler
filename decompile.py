@@ -85,6 +85,8 @@ def pattern_match_vtttalk(tokens):
     elif mnemonic == "MDAP" and len(operands) == 2 and operands[0] == '1': #not sure about round='1'("R") in instruction "MDAP[R], 3"
       pt = operands[1]
       vttalk.append('{}Anchor({})'.format(axis, pt))
+      # side-effect:
+      refPt["1"] = pt
 
     elif mnemonic == "SHP" and len(operands) == 2:
       refpt_id, pt = operands
