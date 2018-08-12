@@ -75,7 +75,12 @@ def create_test(font, glyph_name):
 fonts = [
   "data/OpenSans-CondBold_VTT.ttf",
   "data/OpenSans-Bold_VTT.ttf",
-  "data/OpenSans-BoldItalic_VTT.ttf"
+  "data/OpenSans-BoldItalic_VTT.ttf",
+  "data/Roboto-BlackItalic_VTT.ttf",
+  "data/Roboto-Black_VTT.ttf",
+  "data/Roboto-BoldItalic_VTT.ttf",
+  "data/Roboto-Bold_VTT.ttf",
+  "data/Roboto-VF.ttf"
 ]
 
 for font_name in fonts:
