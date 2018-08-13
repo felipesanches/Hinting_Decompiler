@@ -40,7 +40,7 @@ REF_POINT = {
   '1': "1"
 }
 
-def pattern_match_vtttalk(tokens, points):
+def pattern_match_vtttalk(tokens, points, optimize_ipanchor):
   vttalk = []
   axis = "X"
   refPt = {"1": 0, "2": 0}
@@ -73,15 +73,22 @@ def pattern_match_vtttalk(tokens, points):
 
     elif mnemonic == "IP" and len(operands) == 1:
       pt = operands[0]
+      next_cmd = tokens[IP]
+      if optimize_ipanchor and next_cmd[0] == "MDAP" and next_cmd[1] == '1' and next_cmd[2] == pt: #'1' == "R"
+        keyword = "IPAnchor"
+        IP += 1
+      else:
+        keyword = "Interpolate"
+
       # the order of the Interpolate params depend on the coordinates of the actual points
       if axis == 'X':
         coord = 0
       else: # if axis == 'Y':
         coord = 1
       if points[refPt["1"]][coord] > points[refPt["2"]][coord]:
-        vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["1"], pt, refPt["2"]))
+        vttalk.append('{}{}({},{},{})'.format(axis, keyword, refPt["1"], pt, refPt["2"]))
       else:
-        vttalk.append('{}Interpolate({},{},{})'.format(axis, refPt["2"], pt, refPt["1"]))
+        vttalk.append('{}{}({},{},{})'.format(axis, keyword, refPt["2"], pt, refPt["1"]))
 
     elif mnemonic == "MDAP" and len(operands) == 2 and operands[0] == '1': #not sure about round='1'("R") in instruction "MDAP[R], 3"
       pt = operands[1]
@@ -108,12 +115,12 @@ def pattern_match_vtttalk(tokens, points):
 
   return "\n".join(vttalk)
 
-def decompile_glyph_bytecode(font, glyph_name, verbose=False):
+def decompile_glyph_bytecode(font, glyph_name, verbose=False, optimize_ipanchor=False):
   data = get_glyph_assembly(font, glyph_name)
   data = data.strip()
   tokens = tokenize(data)
   points = font["glyf"][glyph_name].coordinates
-  vtttalk = pattern_match_vtttalk(tokens, points)
+  vtttalk = pattern_match_vtttalk(tokens, points, optimize_ipanchor)
   if verbose:
     print("== {} ==\n{}\n".format(glyph_name, data))
     # print("== TOKENS ==\n{}\n".format("\n".join(map(str, tokens))))

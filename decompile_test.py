@@ -68,8 +68,13 @@ class TestPreReqs(unittest.TestCase):
 def create_test(font, glyph_name):
   def do_test_expected(self):
     original_vtt_talk = get_glyph_talk(font, glyph_name)
-    decompiled = decompile_glyph_bytecode(font, glyph_name)
-    self.assertEqual(decompiled, source_cleanup(original_vtt_talk))
+    a=decompile_glyph_bytecode(font, glyph_name, optimize_ipanchor=True)
+    b=decompile_glyph_bytecode(font, glyph_name, optimize_ipanchor=False)
+
+    if a == b:
+      self.assertEquals(a, source_cleanup(original_vtt_talk))
+    else:
+      self.assertIn(source_cleanup(original_vtt_talk), [a, b])
   return do_test_expected
 
 fonts = [
@@ -86,7 +91,7 @@ fonts = [
 for font_name in fonts:
   font = TTFont(font_name)
   for glyph_name in font.getGlyphOrder():
-    if glyph_name in font["TSI3"].glyphPrograms:
+    if glyph_name in font["TSI3"].glyphPrograms and hasattr(font["glyf"][glyph_name], "coordinates"):
       test_method = create_test(font, glyph_name)
       test_method.__name__ = 'test_decompile_{}_{}'.format(font_name, glyph_name)
       setattr(TestPreReqs, test_method.__name__, test_method)
