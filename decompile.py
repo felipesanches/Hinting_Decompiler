@@ -67,6 +67,10 @@ def pattern_match_vtttalk(tokens, points):
       refPt["1"] = a
       refPt["2"] = b
 
+    elif mnemonic == "MDRP" and len(operands)==2 and operands[0] == '01110':
+      a = operands[1]
+      vttalk.append('{}Dist({},{},>=)'.format(axis, refPt["2"], a))
+
     elif mnemonic == "IP" and len(operands) == 1:
       pt = operands[0]
       # the order of the Interpolate params depend on the coordinates of the actual points
